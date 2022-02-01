@@ -79,7 +79,7 @@ function onLocalTracksCreated(tracks) {
         attachTrack(track);
 
         if(track.getType() === TRACK_TYPE_AUDIO) {
-            $(`#${getTrackId(track)}`).attr('mute', 'mute')
+            $(`#${getTrackId(track)}`)[0].muted = true;
         }
 
         if (isJoined) {
@@ -105,16 +105,6 @@ function onRemoteTrackAdded(track) {
     attachTrack(track);
 }
 
-
-function onRemoteTrackRemoved(track) {
-    console.log(`User ${track.getParticipantId()} has removed a ${track.getType()} track`);
-    removeRemoteTrack(track);
-    const tracks = remoteTracks[track.getParticipantId()]
-    if (tracks) {
-        remoteTracks[track.getParticipantId()] = tracks.filter(t => t !== track)
-    }
-}
-
 function removeRemoteTrack(track) {
     const element = $(`#${getTrackId(track)}`)
     try {
@@ -123,6 +113,15 @@ function removeRemoteTrack(track) {
         console.error(e);
     }
     element.remove();
+}
+
+function onRemoteTrackRemoved(track) {
+    console.log(`User ${track.getParticipantId()} has removed a ${track.getType()} track`);
+    removeRemoteTrack(track);
+    const tracks = remoteTracks[track.getParticipantId()]
+    if (tracks) {
+        remoteTracks[track.getParticipantId()] = tracks.filter(t => t !== track)
+    }
 }
 
 function onConferenceJoined() {
