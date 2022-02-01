@@ -78,6 +78,10 @@ function onLocalTracksCreated(tracks) {
 
         attachTrack(track);
 
+        if(track.getType() === TRACK_TYPE_AUDIO) {
+            $(`#${getTrackId(track)}`).attr('mute', 'mute')
+        }
+
         if (isJoined) {
             room.addTrack(track);
         }
@@ -112,7 +116,7 @@ function onRemoteTrackRemoved(track) {
 }
 
 function removeRemoteTrack(track) {
-    const element = $(`#${getRemoteTrackId(track)}`)
+    const element = $(`#${getTrackId(track)}`)
     try {
         track.detach(element);
     } catch (e) {
