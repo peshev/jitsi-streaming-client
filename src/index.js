@@ -2,6 +2,10 @@ import JitsiMeetJS from 'lib-jitsi-meet'
 import $ from 'jquery'
 
 const options = {
+    hosts: {
+        domain: 'jitsi.meet',
+        muc: 'muc.jitsi.meet'
+    },
     serviceUrl: `wss://${window.location.host}/xmpp-websocket`
 };
 
