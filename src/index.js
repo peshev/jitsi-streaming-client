@@ -57,7 +57,7 @@ function getTracksArray(track) {
 
 function getTrackId(track) {
     let participant = track.getParticipantId() ? track.getParticipantId() : 'local'
-    return `${participant}-${track.getType()}-${getTracksArray(track).indexOf(track)}`;
+    return `${participant}-${track.getType()}-${track.getTrackId()}`;
 }
 
 function attachTrack(track) {
