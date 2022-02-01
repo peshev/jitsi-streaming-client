@@ -3,8 +3,8 @@ import $ from 'jquery'
 
 const options = {
     hosts: {
-        domain: 'jitsi.meet',
-        muc: 'muc.jitsi.meet'
+        domain: 'meet.jitsi',
+        muc: 'muc.meet.jitsi'
     },
     serviceUrl: `wss://${window.location.host}/xmpp-websocket`
 };
