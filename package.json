@@ -1,0 +1,29 @@
+{
+  "name": "jitsi-streaming-client",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peshev/jitsi-streaming-client.git"
+  },
+  "author": "Peter Peshev",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/peshev/jitsi-streaming-client/issues"
+  },
+  "homepage": "https://github.com/peshev/jitsi-streaming-client#readme",
+  "devDependencies": {
+    "html-webpack-plugin": "^5.5.0",
+    "webpack": "^5.68.0",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "jquery": "^3.6.0",
+    "lib-jitsi-meet": "https://github.com/jitsi/lib-jitsi-meet/releases/download/1343-2d21eb5b/lib-jitsi-meet.tgz"
+  }
+}
