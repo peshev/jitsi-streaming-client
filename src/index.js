@@ -28,20 +28,20 @@ const TRACK_TYPES = [TRACK_TYPE_AUDIO, TRACK_TYPE_VIDEO];
 
 function addTrackInfoListeners(side, track) {
     track.addEventListener(JitsiMeetJS.events.track.TRACK_AUDIO_LEVEL_CHANGED,
-        audioLevel => console.log(`${side} ${track.getType()} track changed audio level to ${audioLevel}`));
+        audioLevel => console.log(`[JSC] ${side} ${track.getType()} track changed audio level to ${audioLevel}`));
     track.addEventListener(JitsiMeetJS.events.track.TRACK_MUTE_CHANGED,
-        () => console.log(`${side} ${track.getType()} track has been muted`));
+        () => console.log(`[JSC] ${side} ${track.getType()} track has been muted`));
     track.addEventListener(JitsiMeetJS.events.track.LOCAL_TRACK_STOPPED,
-        () => console.log(`${side} ${track.getType()} track has been stopped`));
+        () => console.log(`[JSC] ${side} ${track.getType()} track has been stopped`));
     track.addEventListener(JitsiMeetJS.events.track.TRACK_AUDIO_OUTPUT_CHANGED,
-        deviceId => console.log(`${side} ${track.getType()} track changed output device to ${deviceId}`));
+        deviceId => console.log(`[JSC] ${side} ${track.getType()} track changed output device to ${deviceId}`));
 }
 
 function addConferenceInfoListeners(room) {
     room.on(JitsiMeetJS.events.conference.DISPLAY_NAME_CHANGED,
-        (participantId, displayName) => console.log(`Participant ${participantId} changed their display name to ${displayName}`));
+        (participantId, displayName) => console.log(`[JSC] Participant ${participantId} changed their display name to ${displayName}`));
     room.on(JitsiMeetJS.events.conference.PHONE_NUMBER_CHANGED,
-        () => console.log(`The room phone number changed to ${room.getPhoneNumber()} (PIN: ${room.getPhonePin()})`));
+        () => console.log(`[JSC] The room phone number changed to ${room.getPhoneNumber()} (PIN: ${room.getPhonePin()})`));
 }
 
 function getTracksArray(track) {
@@ -67,10 +67,10 @@ function onLocalTracksCreated(tracks) {
         if (!track.isLocal()) {
             continue;
         }
-        console.log(`Adding a local ${track.getType()} track`);
+        console.log(`[JSC] Adding a local ${track.getType()} track`);
 
         if (!TRACK_TYPES.includes(track.getType())) {
-            console.error(`Unexpected local track type ${track.getType}`);
+            console.error(`[JSC] Unexpected local track type ${track.getType}`);
             continue;
         }
 
@@ -89,18 +89,18 @@ function onLocalTracksCreated(tracks) {
 }
 
 function onRemoteTrackAdded(track) {
-    console.log(`User ${track.getParticipantId()} has added a ${track.getType()} track`);
+    console.log(`[JSC] User ${track.getParticipantId()} has added a ${track.getType()} track`);
     const participant = track.getParticipantId();
 
     if (!TRACK_TYPES.includes(track.getType())) {
-        throw `Unexpected remote track type ${track.getType} for participant ${participant}`
+        throw `[JSC] Unexpected remote track type ${track.getType} for participant ${participant}`
     }
 
     if (!remoteTracks[participant]) {
         remoteTracks[participant] = [];
     }
 
-    addTrackInfoListeners(`Remote participant ${participant}`, track);
+    addTrackInfoListeners(`[JSC] Remote participant ${participant}`, track);
 
     attachTrack(track);
 }
@@ -116,7 +116,7 @@ function removeRemoteTrack(track) {
 }
 
 function onRemoteTrackRemoved(track) {
-    console.log(`User ${track.getParticipantId()} has removed a ${track.getType()} track`);
+    console.log(`[JSC] User ${track.getParticipantId()} has removed a ${track.getType()} track`);
     removeRemoteTrack(track);
     const tracks = remoteTracks[track.getParticipantId()]
     if (tracks) {
@@ -125,7 +125,7 @@ function onRemoteTrackRemoved(track) {
 }
 
 function onConferenceJoined() {
-    console.log('We have joined the conference');
+    console.log('[JSC] We have joined the conference');
     isJoined = true;
     for (let i = 0; i < localTracks.length; i++) {
         room.addTrack(localTracks[i]);
@@ -133,17 +133,17 @@ function onConferenceJoined() {
 }
 
 function onConferenceLeft() {
-    console.log('We have left the conference');
+    console.log('[JSC] We have left the conference');
     isJoined = false;
 }
 
 function onUserJoined(id) {
-    console.log(`User ${id} has joined the conference`);
+    console.log(`[JSC] User ${id} has joined the conference`);
     remoteTracks[id] = [];
 }
 
 function onUserLeft(id) {
-    console.log(`User ${id} has left the conference`);
+    console.log(`[JSC] User ${id} has left the conference`);
     if (!remoteTracks[id]) {
         return;
     }
@@ -152,7 +152,7 @@ function onUserLeft(id) {
 }
 
 function onConnectionEstablished() {
-    console.log('Connection has been established successfully');
+    console.log('[JSC] Connection has been established successfully');
 
     room = connection.initJitsiConference(params.id || 'conference', confOptions);
 
@@ -180,11 +180,11 @@ function onConnectionEstablished() {
 }
 
 function onConnectionFailed() {
-    console.error('Connection failed');
+    console.error('[JSC] Connection failed');
 }
 
 function onConnectionDisconnected() {
-    console.log('Connection has been disconnected');
+    console.log('[JSC] Connection has been disconnected');
     removeConnectionListeners(connection)
 }
 
