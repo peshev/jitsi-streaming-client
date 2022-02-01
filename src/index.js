@@ -283,22 +283,24 @@ const initOptions = {
     disableAudioLevels: true
 };
 
-JitsiMeetJS.init(initOptions);
+$(function () {
+    JitsiMeetJS.init(initOptions);
 
-connection = new JitsiMeetJS.JitsiConnection(null, null, options);
-addConnectionListeners(connectionListeners);
-connection.connect();
+    connection = new JitsiMeetJS.JitsiConnection(null, null, options);
+    addConnectionListeners(connectionListeners);
+    connection.connect();
 
-if (params.mode === MODE_STREAM) {
-    JitsiMeetJS.createLocalTracks({devices: ['audio', 'video']}).then(onLocalTracksCreated);
-    if (JitsiMeetJS.mediaDevices.isDeviceChangeAvailable('output')) {
-        JitsiMeetJS.mediaDevices.enumerateDevices().then(populateAudioOutputSelector);
-        JitsiMeetJS.mediaDevices.addEventListener(JitsiMeetJS.events.mediaDevices.DEVICE_LIST_CHANGED,
-            populateAudioOutputSelector);
+    if (params.mode === MODE_STREAM) {
+        JitsiMeetJS.createLocalTracks({devices: ['audio', 'video']}).then(onLocalTracksCreated);
+        if (JitsiMeetJS.mediaDevices.isDeviceChangeAvailable('output')) {
+            JitsiMeetJS.mediaDevices.enumerateDevices().then(populateAudioOutputSelector);
+            JitsiMeetJS.mediaDevices.addEventListener(JitsiMeetJS.events.mediaDevices.DEVICE_LIST_CHANGED,
+                populateAudioOutputSelector);
+        }
+    } else if (params.mode === MODE_WATCH) {
+        const body = $('body');
+        body.append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
+        body.append('<a id="start" >Start</a><br/>');
+        $('#start').on('click', playRemoteTracks);
     }
-} else if (params.mode === MODE_WATCH) {
-    const body = $('body');
-    body.append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
-    body.append('<a id="start" >Start</a><br/>');
-    $('#start').on('click', playRemoteTracks);
-}
+});
