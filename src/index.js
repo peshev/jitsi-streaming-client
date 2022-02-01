@@ -266,7 +266,7 @@ if (!MODES.includes(params.mode)) {
 $(window).bind('beforeunload', disconnect);
 $(window).bind('unload', disconnect);
 $('body').append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
-$('body').append('<a id="start" >Start</a>');
+$('body').append('<a id="start" >Start</a><br/>');
 $('#start').on('click',playRemoteTracks);
 // JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
 const initOptions = {
