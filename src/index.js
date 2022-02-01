@@ -99,7 +99,11 @@ function onRemoteTrackRemoved(track) {
 
 function removeRemoteTrack(track) {
     const element = $(`#${getRemoteTrackId(track)}`)
-    track.detach(element);
+    try {
+        track.detach(element);
+    } catch (e) {
+        console.error(e);
+    }
     element.remove();
 }
 
@@ -131,7 +135,7 @@ function onUserLeft(id) {
 }
 
 function onConnectionEstablished() {
-    console.error('Connection has been established successfully');
+    console.log('Connection has been established successfully');
 
     room = connection.initJitsiConference(params.id || 'conference', confOptions);
 
