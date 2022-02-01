@@ -1,4 +1,5 @@
-/* global $, JitsiMeetJS */
+import JitsiMeetJS from 'lib-jitsi-meet'
+import $ from 'jquery'
 
 const options = {
     serviceUrl: `wss://${window.location.host}/xmpp-websocket`
