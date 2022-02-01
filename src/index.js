@@ -44,6 +44,22 @@ function addConferenceInfoListeners(room) {
         () => console.log(`The room phone number changed to ${room.getPhoneNumber()} (PIN: ${room.getPhonePin()})`));
 }
 
+function getTracksArray(track) {
+    return track.getParticipantId() ? remoteTracks[track.getParticipantId()] : localTracks;
+}
+
+function getTrackId(track) {
+    let participant = track.getParticipantId() ? track.getParticipantId() : 'local'
+    return `${participant}-${track.getType()}-${getTracksArray(track).indexOf(track)}`;
+}
+
+function attachTrack(track) {
+    const id = getTrackId(track);
+    $('body').append(`<${track.getType()} autoplay="autoplay" id='${id}' />`);
+    track.attach($(`#${id}`)[0]);
+    getTracksArray(track).push(track);
+}
+
 function onLocalTracksCreated(tracks) {
     for (let i = 0; i < tracks.length; i++) {
         let track = tracks[i];
@@ -51,18 +67,16 @@ function onLocalTracksCreated(tracks) {
         if (!track.isLocal()) {
             continue;
         }
-        if (track.getType() === 'video') {
-            $('body').append(`<video autoplay='autoplay' id='localVideo${i}' />`);
-            track.attach($(`#localVideo${i}`)[0]);
-        } else if (track.getType() === 'audio') {
-            $('body').append(`<audio autoplay='autoplay' muted='muted' id='localAudio${i}' />`);
-            track.attach($(`#localAudio${i}`)[0]);
-        } else {
-            console.error(`Unknown track type ${track.getType()}`)
+        console.log(`Adding a local ${track.getType()} track`);
+
+        if (!TRACK_TYPES.includes(track.getType())) {
+            console.error(`Unexpected local track type ${track.getType}`);
             continue;
         }
 
         addTrackInfoListeners("Local", track);
+
+        attachTrack(track);
 
         if (isJoined) {
             room.addTrack(track);
@@ -70,29 +84,21 @@ function onLocalTracksCreated(tracks) {
     }
 }
 
-function getRemoteTrackId(track) {
-    const participant = track.getParticipantId();
-    return participant + track.getType() + remoteTracks[participant].indexOf(track);
-}
-
 function onRemoteTrackAdded(track) {
     console.log(`User ${track.getParticipantId()} has added a ${track.getType()} track`);
     const participant = track.getParticipantId();
 
-    if(!TRACK_TYPES.includes(track.getType())) {
+    if (!TRACK_TYPES.includes(track.getType())) {
         throw `Unexpected remote track type ${track.getType} for participant ${participant}`
     }
 
     if (!remoteTracks[participant]) {
         remoteTracks[participant] = [];
     }
-    remoteTracks[participant].push(track);
 
     addTrackInfoListeners(`Remote participant ${participant}`, track);
 
-    const id = getRemoteTrackId(track);
-    $('body').append(`<${track.getType()} autoplay='1' id='${id}' />`);
-    track.attach($(`#${id}`)[0]);
+    attachTrack(track);
 }
 
 
