@@ -267,7 +267,7 @@ $(window).bind('beforeunload', disconnect);
 $(window).bind('unload', disconnect);
 $('body').append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
 $('body').append('<a id="start" >Start</a>');
-$('start').onclick(playRemoteTracks);
+$('start').on('click',playRemoteTracks);
 // JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
 const initOptions = {
     disableAudioLevels: true
