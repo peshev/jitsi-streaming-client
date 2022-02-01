@@ -87,8 +87,15 @@ function onLocalTracksCreated(tracks) {
 
         attachTrack(track);
 
+        const element = $(`#${getTrackId(track)}`)[0];
+
         if (track.getType() === TRACK_TYPE_AUDIO) {
-            $(`#${getTrackId(track)}`)[0].muted = true;
+            element.muted = true;
+        } else if (track.getType() === TRACK_TYPE_VIDEO) {
+            element.style = {
+                height: '100%',
+                width: '100%'
+            }
         }
 
         if (isJoined) {
@@ -113,6 +120,14 @@ function onRemoteTrackAdded(track) {
     addTrackInfoListeners(`[JSC] Remote participant ${participant}`, track);
 
     attachTrack(track);
+
+    const element = $(`#${getTrackId(track)}`)[0];
+    if (track.getType() === TRACK_TYPE_VIDEO) {
+        element.style = {
+            height: '640px',
+            width: '352px'
+        }
+    }
 }
 
 function removeRemoteTrack(track) {
@@ -285,9 +300,9 @@ if (params.mode === MODE_STREAM) {
         JitsiMeetJS.mediaDevices.addEventListener(JitsiMeetJS.events.mediaDevices.DEVICE_LIST_CHANGED,
             populateAudioOutputSelector);
     }
-} else if(params.mode === MODE_WATCH) {
+} else if (params.mode === MODE_WATCH) {
     const body = $('body');
     body.append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
     body.append('<a id="start" >Start</a><br/>');
-    $('#start').on('click',playRemoteTracks);
+    $('#start').on('click', playRemoteTracks);
 }
