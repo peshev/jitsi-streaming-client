@@ -54,10 +54,10 @@ function getTrackId(track) {
 }
 
 function attachTrack(track) {
+    getTracksArray(track).push(track);
     const id = getTrackId(track);
     $('body').append(`<${track.getType()} autoplay="autoplay" id='${id}' />`);
     track.attach($(`#${id}`)[0]);
-    getTracksArray(track).push(track);
 }
 
 function onLocalTracksCreated(tracks) {
