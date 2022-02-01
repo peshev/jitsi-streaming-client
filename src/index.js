@@ -251,6 +251,12 @@ function parseQueryString() {
         }, {})
 }
 
+function playRemoteTracks() {
+    Object.entries(remoteTracks)
+        .forEach(([participant, tracks]) => tracks
+            .forEach(track => $(`#${getTrackId(track)}`)[0].play()));
+}
+
 const params = parseQueryString();
 if (!MODES.includes(params.mode)) {
     throw `Invalid mode ${params.mode}`
@@ -259,6 +265,7 @@ if (!MODES.includes(params.mode)) {
 $(window).bind('beforeunload', disconnect);
 $(window).bind('unload', disconnect);
 $('body').append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
+$('body').append('<a onclick="playRemoteTracks()">Start</a>')
 // JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
 const initOptions = {
     disableAudioLevels: true
