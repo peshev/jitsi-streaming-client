@@ -91,6 +91,7 @@ function onLocalTracksCreated(tracks) {
 
         if (isJoined) {
             room.addTrack(track);
+            log(`Added new track ${track} post joining room`)
         }
     }
 }
@@ -135,7 +136,9 @@ function onConferenceJoined() {
     log('We have joined the conference');
     isJoined = true;
     for (let i = 0; i < localTracks.length; i++) {
-        room.addTrack(localTracks[i]);
+        const track = localTracks[i];
+        room.addTrack(track);
+        log(`Added existing track ${track} upon joining room`)
     }
 }
 
