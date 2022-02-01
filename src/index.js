@@ -64,7 +64,7 @@ function getTrackId(track) {
 function attachTrack(track) {
     getTracksArray(track).push(track);
     const id = getTrackId(track);
-    $('body').append(`<${track.getType()} autoplay playsinlin id='${id}' />`);
+    $('body').append(`<${track.getType()} autoplay playsinline id='${id}' />`);
     const element = $(`#${id}`)[0]
     track.attach(element);
 }
