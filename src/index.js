@@ -92,10 +92,8 @@ function onLocalTracksCreated(tracks) {
         if (track.getType() === TRACK_TYPE_AUDIO) {
             element.muted = true;
         } else if (track.getType() === TRACK_TYPE_VIDEO) {
-            element.style = {
-                height: '100%',
-                width: '100%'
-            }
+            element.style.width = '100%'
+            element.style.height = '100%'
         }
 
         if (isJoined) {
@@ -123,10 +121,8 @@ function onRemoteTrackAdded(track) {
 
     const element = $(`#${getTrackId(track)}`)[0];
     if (track.getType() === TRACK_TYPE_VIDEO) {
-        element.style = {
-            height: '640px',
-            width: '352px'
-        }
+        element.style.height = '640px';
+        element.style.width = '352px';
     }
 }
 
