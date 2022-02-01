@@ -22,6 +22,10 @@ const MODE_STREAM = "stream";
 const MODE_WATCH = "watch";
 const MODES = [MODE_STREAM, MODE_WATCH];
 
+const TRACK_TYPE_AUDIO = "audio";
+const TRACK_TYPE_VIDEO = "video";
+const TRACK_TYPES = [TRACK_TYPE_AUDIO, TRACK_TYPE_VIDEO];
+
 function addTrackInfoListeners(side, track) {
     track.addEventListener(JitsiMeetJS.events.track.TRACK_AUDIO_LEVEL_CHANGED,
         audioLevel => console.log(`${side} ${track.getType()} track changed audio level to ${audioLevel}`));
@@ -73,8 +77,12 @@ function getRemoteTrackId(track) {
 
 function onRemoteTrackAdded(track) {
     console.log(`User ${track.getParticipantId()} has added a ${track.getType()} track`);
-
     const participant = track.getParticipantId();
+
+    if(!TRACK_TYPES.includes(track.getType())) {
+        throw `Unexpected remote track type ${track.getType} for participant ${participant}`
+    }
+
     if (!remoteTracks[participant]) {
         remoteTracks[participant] = [];
     }
@@ -83,7 +91,7 @@ function onRemoteTrackAdded(track) {
     addTrackInfoListeners(`Remote participant ${participant}`, track);
 
     const id = getRemoteTrackId(track);
-    $('body').append(`<video autoplay='1' id='${id}' />`);
+    $('body').append(`<${track.getType()} autoplay='1' id='${id}' />`);
     track.attach($(`#${id}`)[0]);
 }
 
