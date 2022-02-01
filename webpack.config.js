@@ -12,5 +12,19 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'Streaming Client'
         })
-    ]
+    ],
+    module: {
+        rules: [
+            {
+                test: /jquery.+\.js$/,
+                use: [{
+                    loader: 'expose-loader',
+                    options: 'jQuery'
+                }, {
+                    loader: 'expose-loader',
+                    options: '$'
+                }]
+            }
+        ],
+    },
 };
