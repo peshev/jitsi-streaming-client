@@ -265,10 +265,9 @@ if (!MODES.includes(params.mode)) {
 
 $(window).bind('beforeunload', disconnect);
 $(window).bind('unload', disconnect);
-$('body').append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
-$('body').append('<a id="start" >Start</a><br/>');
-$('#start').on('click',playRemoteTracks);
+
 // JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
+
 const initOptions = {
     disableAudioLevels: true
 };
@@ -286,4 +285,9 @@ if (params.mode === MODE_STREAM) {
         JitsiMeetJS.mediaDevices.addEventListener(JitsiMeetJS.events.mediaDevices.DEVICE_LIST_CHANGED,
             populateAudioOutputSelector);
     }
+} else if(params.mode === MODE_WATCH) {
+    const body = $('body');
+    body.append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
+    body.append('<a id="start" >Start</a><br/>');
+    $('#start').on('click',playRemoteTracks);
 }
