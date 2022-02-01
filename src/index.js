@@ -33,6 +33,7 @@ function log(message) {
 function error(message) {
     console.error(`[JSC][${Date.now()}] ${message}`)
 }
+
 function addTrackInfoListeners(side, track) {
     track.addEventListener(JitsiMeetJS.events.track.TRACK_AUDIO_LEVEL_CHANGED,
         audioLevel => log(`${side} ${track.getType()} track changed audio level to ${audioLevel}`));
@@ -86,7 +87,7 @@ function onLocalTracksCreated(tracks) {
 
         attachTrack(track);
 
-        if(track.getType() === TRACK_TYPE_AUDIO) {
+        if (track.getType() === TRACK_TYPE_AUDIO) {
             $(`#${getTrackId(track)}`)[0].muted = true;
         }
 
@@ -265,7 +266,8 @@ if (!MODES.includes(params.mode)) {
 $(window).bind('beforeunload', disconnect);
 $(window).bind('unload', disconnect);
 $('body').append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
-$('body').append('<a onclick="playRemoteTracks()">Start</a>')
+$('body').append('<a id="start" >Start</a>');
+$('start').onclick(playRemoteTracks);
 // JitsiMeetJS.setLogLevel(JitsiMeetJS.logLevels.ERROR);
 const initOptions = {
     disableAudioLevels: true
