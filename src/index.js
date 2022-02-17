@@ -94,6 +94,7 @@ function onLocalTracksCreated(tracks) {
         } else if (track.getType() === TRACK_TYPE_VIDEO) {
             element.style.width = '100%'
             element.style.height = '100%'
+            element.playsInline = true;
         }
 
         if (isJoined) {
