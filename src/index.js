@@ -1,5 +1,7 @@
 import JitsiMeetJS from 'lib-jitsi-meet'
 import $ from 'jquery'
+import './style.css';
+import SwitchCameraImage from './switch-camera.svg';
 
 const options = {
     hosts: {
@@ -58,18 +60,20 @@ function getTracksArray(track) {
 
 function getTrackId(track) {
     let participant = track.getParticipantId() ? track.getParticipantId() : 'local'
-    return `${participant}-${track.getType()}-${track.getTrackId().replaceAll('{','').replaceAll('}','')}`;
+    return `${participant}-${track.getType()}-${track.getTrackId().replaceAll('{', '').replaceAll('}', '')}`;
 }
 
 function attachTrack(track) {
     getTracksArray(track).push(track);
-    const id = getTrackId(track);
-    $('body').append(`<${track.getType()} autoplay="1" id='${id}' />`);
-    const element = $(`#${id}`)[0]
-    track.attach(element);
+    const streamElement = document.createElement(track.getType());
+    streamElement.id = getTrackId(track);
+    streamElement.autoplay = 1;
+    $('body').append(streamElement);
+    track.attach(streamElement);
 }
 
 function onLocalTracksCreated(tracks) {
+    localTracks
     for (let i = 0; i < tracks.length; i++) {
         let track = tracks[i];
 
@@ -127,23 +131,33 @@ function onRemoteTrackAdded(track) {
     }
 }
 
-function removeRemoteTrack(track) {
-    const element = $(`#${getTrackId(track)}`)
+function removeTrack(track) {
+    const trackElement = document.getElementById(getTrackId(track));
     try {
-        track.detach(element);
+        track.detach(trackElement);
     } catch (e) {
         error(e);
     }
-    element.remove();
+    trackElement.remove();
+}
+
+function removeArrayElement(array, value) {
+    return array.filter(t => t !== value);
 }
 
 function onRemoteTrackRemoved(track) {
     log(`User ${track.getParticipantId()} has removed a ${track.getType()} track`);
-    removeRemoteTrack(track);
+    removeTrack(track);
     const tracks = remoteTracks[track.getParticipantId()]
     if (tracks) {
-        remoteTracks[track.getParticipantId()] = tracks.filter(t => t !== track)
+        remoteTracks[track.getParticipantId()] = removeArrayElement(tracks, track);
     }
+}
+
+function removeLocalTrack(track) {
+    log(`Removing a local ${track.getType()} track`);
+    removeTrack(track);
+    localTracks = removeArrayElement(localTracks, track);
 }
 
 function onConferenceJoined() {
@@ -171,7 +185,7 @@ function onUserLeft(id) {
     if (!remoteTracks[id]) {
         return;
     }
-    remoteTracks[id].forEach(removeRemoteTrack);
+    remoteTracks[id].forEach(removeTrack);
     delete remoteTracks[id];
 }
 
@@ -275,6 +289,28 @@ if (!MODES.includes(params.mode)) {
     throw `Invalid mode ${params.mode}`
 }
 
+let facingUser = false;
+
+function createLocalTracks() {
+    JitsiMeetJS.createLocalTracks({
+        devices: ['audio', 'video'],
+        facingMode: facingUser ? "user" : "environment",
+        constraints: {
+            width: {min: 640, ideal: 1280, max: 1920},
+            height: {min: 480, ideal: 720, max: 1080},
+            frameRate: {min: 10, ideal: 24, max: 60},
+        },
+        minFps: 10,
+        maxFps: 60,
+    }).then(onLocalTracksCreated);
+
+}
+
+function switchCamera() {
+    facingUser = !facingUser;
+    createLocalTracks();
+}
+
 $(window).bind('beforeunload', disconnect);
 $(window).bind('unload', disconnect);
 
@@ -285,6 +321,7 @@ const initOptions = {
 };
 
 $(function () {
+    const body = $('body');
     JitsiMeetJS.init(initOptions);
 
     connection = new JitsiMeetJS.JitsiConnection(null, null, options);
@@ -292,16 +329,29 @@ $(function () {
     connection.connect();
 
     if (params.mode === MODE_STREAM) {
-        JitsiMeetJS.createLocalTracks({devices: ['audio', 'video']}).then(onLocalTracksCreated);
+        createLocalTracks();
         if (JitsiMeetJS.mediaDevices.isDeviceChangeAvailable('output')) {
             JitsiMeetJS.mediaDevices.enumerateDevices().then(populateAudioOutputSelector);
             JitsiMeetJS.mediaDevices.addEventListener(JitsiMeetJS.events.mediaDevices.DEVICE_LIST_CHANGED,
                 populateAudioOutputSelector);
         }
+        const switchCameraButton = document.createElement("img");
+        switchCameraButton.id = "switch-camera";
+        switchCameraButton.src = SwitchCameraImage;
+        switchCameraButton.alt = "CR";
+        switchCameraButton.onclick = switchCamera;
+        body.append(switchCameraButton);
     } else if (params.mode === MODE_WATCH) {
-        const body = $('body');
-        body.append('<div id="audioOutputSelectWrapper" style="display: none;"/>')
-        body.append('<a id="start" >Start</a><br/>');
-        $('#start').on('click', playRemoteTracks);
+        const audioOutputSelect = document.createElement("div");
+        audioOutputSelect.id = "audioOutputSelectWrapper";
+        audioOutputSelect.style.display = 'none';
+        body.append(audioOutputSelect);
+
+        const startButton = document.createElement("a");
+        startButton.id = "start";
+        startButton.onclick = playRemoteTracks;
+        body.append(startButton);
+
+        body.append('<br/>');
     }
 });
