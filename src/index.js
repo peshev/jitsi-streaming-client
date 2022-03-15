@@ -125,7 +125,7 @@ function onLocalTrackAdded(track) {
 
         if (isJoined) {
             room.addTrack(track);
-            log_track(track, `Added new track post joining room`)
+            log_track(track, `Added new track post joining room ${room.getMeetingUniqueId()}`)
         }
     } else {
         error_track(track, `Unexpected local track type ${track.getType()}`);
@@ -135,6 +135,7 @@ function onLocalTrackAdded(track) {
 function removeLocalTrack(track) {
     log_track(track, `Removing local track`);
     if (isJoined) {
+        log_track(track, `Removing local track from room ${room.getMeetingUniqueId()}`);
         room.removeTrack(track);
     }
     removeTrack(track);
@@ -142,7 +143,7 @@ function removeLocalTrack(track) {
 
 function onRemoteTrackAdded(track) {
     const participant = track.getParticipantId();
-    log_track(track, `Adding remote track by participant ${participant}`);
+    log_track(track, `Adding remote track by participant ${participant} in room ${room.getMeetingUniqueId()}`);
 
     if (!TRACK_TYPES.includes(track.getType())) {
         throw track_log_message(track, `Unexpected remote track type ${track.getType()} for participant ${participant}}`)
@@ -164,7 +165,7 @@ function onRemoteTrackAdded(track) {
 
 function onRemoteTrackRemoved(track) {
     const participant = track.getParticipantId();
-    log_track(`Removing remote track by participant ${participant}`);
+    log_track(`Removing remote track by participant ${participant} in room ${room.getMeetingUniqueId()}`);
     removeTrack(track);
     const tracks = remoteTracks[participant]
     if (tracks) {
@@ -173,27 +174,27 @@ function onRemoteTrackRemoved(track) {
 }
 
 function onConferenceJoined() {
-    log('We have joined the conference');
+    log(`Joined room ${room.getMeetingUniqueId()}`);
     isJoined = true;
     for (let i = 0; i < localTracks.length; i++) {
         const track = localTracks[i];
         room.addTrack(track);
-        log(`Added existing ${track.getType()} track upon joining room, id: ${getTrackId(track)}`)
+        log_track(track, `Added existing track upon joining room ${room.getMeetingUniqueId()}`)
     }
 }
 
 function onConferenceLeft() {
-    log('We have left the conference');
+    log(`Left room ${room.getMeetingUniqueId()}`);
     isJoined = false;
 }
 
 function onUserJoined(id) {
-    log(`User ${id} has joined the conference`);
+    log(`User ${id} has joined room ${room.getMeetingUniqueId()}`);
     remoteTracks[id] = [];
 }
 
 function onUserLeft(id) {
-    log(`User ${id} has left the conference`);
+    log(`User ${id} has left room ${room.getMeetingUniqueId()}`);
     if (!remoteTracks[id]) {
         return;
     }
