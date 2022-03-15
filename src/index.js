@@ -134,11 +134,11 @@ function onLocalTrackAdded(track) {
 
 function removeLocalTrack(track) {
     log_track(track, `Removing local track`);
-    if (isJoined) {
-        log_track(track, `Removing local track from room ${room.getMeetingUniqueId()}`);
-        room.removeTrack(track);
-    }
     removeTrack(track);
+    if (isJoined) {
+        room.removeTrack(track);
+        log_track(track, `Removed local track from room ${room.getMeetingUniqueId()}`);
+    }
 }
 
 function onRemoteTrackAdded(track) {
@@ -165,7 +165,7 @@ function onRemoteTrackAdded(track) {
 
 function onRemoteTrackRemoved(track) {
     const participant = track.getParticipantId();
-    log_track(`Removing remote track by participant ${participant} in room ${room.getMeetingUniqueId()}`);
+    log_track(track, `Removing remote track by participant ${participant} in room ${room.getMeetingUniqueId()}`);
     removeTrack(track);
     const tracks = remoteTracks[participant]
     if (tracks) {
