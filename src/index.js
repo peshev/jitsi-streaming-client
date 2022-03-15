@@ -59,8 +59,9 @@ function getTracksArray(track) {
 }
 
 function getTrackId(track) {
-    let participant = track.getParticipantId() ? track.getParticipantId() : 'local'
-    return `${participant}-${track.getType()}-${track.getTrackId().replaceAll('{', '').replaceAll('}', '')}`;
+    // let participant = track.getParticipantId() ? track.getParticipantId() : 'local'
+    // return `${participant}-${track.getType()}-${track.getTrackId().replaceAll('{', '').replaceAll('}', '')}`;
+    return track.getTrackId();
 }
 
 function attachTrack(track) {
@@ -73,7 +74,6 @@ function attachTrack(track) {
 }
 
 function onLocalTracksCreated(tracks) {
-    localTracks
     for (let i = 0; i < tracks.length; i++) {
         let track = tracks[i];
 
@@ -146,7 +146,7 @@ function removeArrayElement(array, value) {
 }
 
 function onRemoteTrackRemoved(track) {
-    log(`User ${track.getParticipantId()} has removed a ${track.getType()} track`);
+    log(`User ${track.getParticipantId()} has removed a ${track.getType()} track, id: ${getTrackId(track)}`);
     removeTrack(track);
     const tracks = remoteTracks[track.getParticipantId()]
     if (tracks) {
