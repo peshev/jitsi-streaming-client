@@ -156,6 +156,9 @@ function onRemoteTrackRemoved(track) {
 
 function removeLocalTrack(track) {
     log(`Removing a local ${track.getType()} track`);
+    if(isJoined) {
+        room.removeTrack(track);
+    }
     removeTrack(track);
 }
 
