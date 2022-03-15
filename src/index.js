@@ -28,23 +28,39 @@ const TRACK_TYPE_AUDIO = "audio";
 const TRACK_TYPE_VIDEO = "video";
 const TRACK_TYPES = [TRACK_TYPE_AUDIO, TRACK_TYPE_VIDEO];
 
+function log_message(message) {
+    return `[JSC][${Date.now()}]${message}`;
+}
+
 function log(message) {
-    console.log(`[JSC][${Date.now()}] ${message}`)
+    console.log(log_message(` ${message}`))
 }
 
 function error(message) {
-    console.error(`[JSC][${Date.now()}] ${message}`)
+    console.error(log_message(` ${message}`));
+}
+
+function track_log_message(track, message) {
+    return log_message(`[${track.getType()}][${getTrackId(track)}] ${message}`);
+}
+
+function log_track(track, message) {
+    console.log(track_log_message(track, message));
+}
+
+function error_track(track, message) {
+    console.error(track_log_message(track, message));
 }
 
 function addTrackInfoListeners(side, track) {
     track.addEventListener(JitsiMeetJS.events.track.TRACK_AUDIO_LEVEL_CHANGED,
-        audioLevel => log(`${side} ${track.getType()} track changed audio level to ${audioLevel}`));
+        audioLevel => log_track(track, `${side} track changed audio level to ${audioLevel}`));
     track.addEventListener(JitsiMeetJS.events.track.TRACK_MUTE_CHANGED,
-        () => log(`${side} ${track.getType()} track has been muted`));
+        () => log_track(track, `${side} track has been muted`));
     track.addEventListener(JitsiMeetJS.events.track.LOCAL_TRACK_STOPPED,
-        () => log(`${side} ${track.getType()} track has been stopped`));
+        () => log_track(track, `${side} track has been stopped`));
     track.addEventListener(JitsiMeetJS.events.track.TRACK_AUDIO_OUTPUT_CHANGED,
-        deviceId => log(`${side} ${track.getType()} track changed output device to ${deviceId}`));
+        deviceId => log_track(track, `${side} track changed output device to ${deviceId}`));
 }
 
 function addConferenceInfoListeners(room) {
@@ -66,69 +82,15 @@ function getTrackId(track) {
 
 function attachTrack(track) {
     getTracksArray(track).push(track);
-    const streamElement = document.createElement(track.getType());
-    streamElement.id = getTrackId(track);
-    streamElement.autoplay = 1;
-    $('body').append(streamElement);
-    track.attach(streamElement);
-}
 
-function onLocalTracksCreated(tracks) {
-    for (let i = 0; i < tracks.length; i++) {
-        let track = tracks[i];
+    const trackElement = document.createElement(track.getType());
+    trackElement.id = getTrackId(track);
+    trackElement.autoplay = 1;
+    $('body').append(trackElement);
 
-        if (!track.isLocal()) {
-            continue;
-        }
-        log(`Adding a local ${track.getType()} track`);
+    track.attach(trackElement);
 
-        if (!TRACK_TYPES.includes(track.getType())) {
-            error(`Unexpected local track type ${track.getType}`);
-            continue;
-        }
-
-        addTrackInfoListeners("Local", track);
-
-        attachTrack(track);
-
-        const element = $(`#${getTrackId(track)}`)[0];
-
-        if (track.getType() === TRACK_TYPE_AUDIO) {
-            element.muted = true;
-        } else if (track.getType() === TRACK_TYPE_VIDEO) {
-            element.style.width = '100%'
-            element.style.height = '100%'
-            element.playsInline = true;
-        }
-
-        if (isJoined) {
-            room.addTrack(track);
-            log(`Added new track ${getTrackId(track)} post joining room`)
-        }
-    }
-}
-
-function onRemoteTrackAdded(track) {
-    log(`User ${track.getParticipantId()} has added a ${track.getType()} track`);
-    const participant = track.getParticipantId();
-
-    if (!TRACK_TYPES.includes(track.getType())) {
-        throw `[JSC] Unexpected remote track type ${track.getType} for participant ${participant}`
-    }
-
-    if (!remoteTracks[participant]) {
-        remoteTracks[participant] = [];
-    }
-
-    addTrackInfoListeners(`[JSC] Remote participant ${participant}`, track);
-
-    attachTrack(track);
-
-    const element = $(`#${getTrackId(track)}`)[0];
-    if (track.getType() === TRACK_TYPE_VIDEO) {
-        element.style.height = '640px';
-        element.style.width = '352px';
-    }
+    return trackElement;
 }
 
 function removeTrack(track) {
@@ -145,21 +107,69 @@ function removeArrayElement(array, value) {
     return array.filter(t => t !== value);
 }
 
-function onRemoteTrackRemoved(track) {
-    log(`User ${track.getParticipantId()} has removed a ${track.getType()} track, id: ${getTrackId(track)}`);
-    removeTrack(track);
-    const tracks = remoteTracks[track.getParticipantId()]
-    if (tracks) {
-        remoteTracks[track.getParticipantId()] = removeArrayElement(tracks, track);
+function onLocalTrackAdded(track) {
+    log_track(track, `Adding local track`);
+
+    if (TRACK_TYPES.includes(track.getType())) {
+        addTrackInfoListeners("Local", track);
+
+        const trackElement = attachTrack(track);
+
+        if (track.getType() === TRACK_TYPE_AUDIO) {
+            trackElement.muted = true;
+        } else if (track.getType() === TRACK_TYPE_VIDEO) {
+            trackElement.style.width = '100%'
+            trackElement.style.height = '100%'
+            trackElement.playsInline = true;
+        }
+
+        if (isJoined) {
+            room.addTrack(track);
+            log_track(track, `Added new track post joining room`)
+        }
+    } else {
+        error_track(track, `Unexpected local track type ${track.getType()}`);
     }
 }
 
 function removeLocalTrack(track) {
-    log(`Removing a local ${track.getType()} track`);
-    if(isJoined) {
+    log_track(track, `Removing local track`);
+    if (isJoined) {
         room.removeTrack(track);
     }
     removeTrack(track);
+}
+
+function onRemoteTrackAdded(track) {
+    const participant = track.getParticipantId();
+    log_track(track, `Adding remote track by participant ${participant}`);
+
+    if (!TRACK_TYPES.includes(track.getType())) {
+        throw track_log_message(track, `Unexpected remote track type ${track.getType()} for participant ${participant}}`)
+    }
+
+    if (!remoteTracks[participant]) {
+        remoteTracks[participant] = [];
+    }
+
+    addTrackInfoListeners(`Remote participant ${participant}`, track);
+
+    const trackElement = attachTrack(track);
+
+    // if (track.getType() === TRACK_TYPE_VIDEO) {
+    //     trackElement.style.height = '640px';
+    //     trackElement.style.width = '352px';
+    // }
+}
+
+function onRemoteTrackRemoved(track) {
+    const participant = track.getParticipantId();
+    log_track(`Removing remote track by participant ${participant}`);
+    removeTrack(track);
+    const tracks = remoteTracks[participant]
+    if (tracks) {
+        remoteTracks[participant] = removeArrayElement(tracks, track);
+    }
 }
 
 function onConferenceJoined() {
@@ -168,7 +178,7 @@ function onConferenceJoined() {
     for (let i = 0; i < localTracks.length; i++) {
         const track = localTracks[i];
         room.addTrack(track);
-        log(`Added existing track ${getTrackId(track)} upon joining room`)
+        log(`Added existing ${track.getType()} track upon joining room, id: ${getTrackId(track)}`)
     }
 }
 
@@ -304,7 +314,7 @@ function createLocalTracks() {
         },
         minFps: 10,
         maxFps: 60,
-    }).then(onLocalTracksCreated);
+    }).then(tracks => tracks.forEach(onLocalTrackAdded));
 
 }
 
