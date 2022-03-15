@@ -157,7 +157,6 @@ function onRemoteTrackRemoved(track) {
 function removeLocalTrack(track) {
     log(`Removing a local ${track.getType()} track`);
     removeTrack(track);
-    localTracks = removeArrayElement(localTracks, track);
 }
 
 function onConferenceJoined() {
@@ -308,6 +307,8 @@ function createLocalTracks() {
 
 function switchCamera() {
     facingUser = !facingUser;
+    localTracks.forEach(removeLocalTrack);
+    localTracks = [];
     createLocalTracks();
 }
 
@@ -350,6 +351,8 @@ $(function () {
         const startButton = document.createElement("a");
         startButton.id = "start";
         startButton.onclick = playRemoteTracks;
+        startButton.innerText = "Start";
+        startButton.style.color = "white";
         body.append(startButton);
 
         body.append('<br/>');
